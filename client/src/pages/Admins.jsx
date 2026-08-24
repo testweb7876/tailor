@@ -9,6 +9,7 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import EmptyState from '../components/EmptyState';
 import Pagination from '../components/Pagination';
 import StatusPill from '../components/StatusPill';
+import PasswordInput from '../components/PasswordInput';
 import { fmtDateTime, titleCase } from '../lib/format';
 
 const PERMISSIONS = ['customers','orders','measurements','fabrics','payments','invoices','reports','settings','activity','dashboard','broadcast'];
@@ -117,7 +118,11 @@ export default function Admins() {
           <div><label className="label">Name *</label><input className="input" {...register('name', { required: 'Required' })} />{errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}</div>
           <div><label className="label">Email *</label><input className="input" type="email" {...register('email', { required: 'Required' })} />{errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}</div>
           <div><label className="label">Phone</label><input className="input" {...register('phone')} /></div>
-          <div><label className="label">Password * (min 8, letters + numbers)</label><input className="input" type="password" {...register('password', { required: 'Required', minLength: { value: 8, message: 'Min 8 characters' } })} />{errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}</div>
+          <div>
+            <label className="label">Password * (min 8, letters + numbers)</label>
+            <PasswordInput {...register('password', { required: 'Required', minLength: { value: 8, message: 'Min 8 characters' } })} />
+            {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
+          </div>
 
           {branches.length > 0 && (
             <div>
@@ -170,7 +175,7 @@ function ResetPassword({ admin, onClose }) {
     <Modal open onClose={onClose} title={`Reset password — ${admin.name}`}
       footer={<><button className="btn-ghost" onClick={onClose}>Cancel</button><button className="btn-primary" onClick={save} disabled={busy || pw.length < 8}>{busy ? 'Saving…' : 'Reset'}</button></>}>
       <label className="label">New password (min 8, letters + numbers)</label>
-      <input className="input" type="password" value={pw} onChange={(e) => setPw(e.target.value)} />
+      <PasswordInput value={pw} onChange={(e) => setPw(e.target.value)} />
       <p className="mt-2 text-xs text-gray-400">The admin will be logged out of all sessions.</p>
     </Modal>
   );
