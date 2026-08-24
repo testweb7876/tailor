@@ -43,7 +43,7 @@ cp .env.example .env          # set MONGO_URI + two strong JWT secrets (minimum)
 npm install
 npm run seed                  # creates the first Super Admin + Settings (idempotent)
 npm run seed:demo             # OPTIONAL: 20 customers, ~30 orders, payments, invoices, fabrics
-npm run dev                   # http://localhost:6000  (health: GET /api/health)
+npm run dev                   # http://localhost:5000  (health: GET /api/health)
 ```
 
 Default Super Admin (from `.env`): **admin@tailorshop.com / Admin@12345** — **change this immediately** after first login.
@@ -53,7 +53,7 @@ Default Super Admin (from `.env`): **admin@tailorshop.com / Admin@12345** — **
 ```bash
 cd client
 npm install
-npm run dev                   # http://localhost:5173  (proxies /api -> :6000)
+npm run dev                   # http://localhost:5173  (proxies /api -> :5000)
 ```
 
 **MongoDB:** local (`mongodb://127.0.0.1:27017/tailor_erp`) or Atlas — set `MONGO_URI`.
@@ -62,7 +62,7 @@ npm run dev                   # http://localhost:5173  (proxies /api -> :6000)
 
 ```bash
 cp server/.env.example server/.env      # set JWT secrets (MONGO_URI is set by compose)
-docker compose up --build               # Mongo + API (:6000) + web (:8080)
+docker compose up --build               # Mongo + API (:5000) + web (:8080)
 docker compose exec server npm run seed
 docker compose exec server npm run seed:demo   # optional demo data
 ```

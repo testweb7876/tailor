@@ -1,7 +1,35 @@
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import api, { msg } from '../services/api';
 import { useToast } from './Toast';
 import Modal from './Modal';
+
+function PasswordField({ label, value, onChange, hint }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div>
+      <label className="label">{label}</label>
+      <div className="relative">
+        <input
+          type={show ? 'text' : 'password'}
+          className="input pr-10"
+          value={value}
+          onChange={onChange}
+        />
+        <button
+          type="button"
+          onClick={() => setShow((v) => !v)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-ink"
+          tabIndex={-1}
+          aria-label={show ? 'Hide password' : 'Show password'}
+        >
+          {show ? <EyeOff size={17} /> : <Eye size={17} />}
+        </button>
+      </div>
+      {hint && <p className="mt-1 text-xs text-gray-400">{hint}</p>}
+    </div>
+  );
+}
 
 export default function ChangePassword({ onClose }) {
   const toast = useToast();
@@ -26,9 +54,9 @@ export default function ChangePassword({ onClose }) {
       footer={<><button className="btn-ghost" onClick={onClose}>Cancel</button>
         <button className="btn-primary" onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Change password'}</button></>}>
       <div className="space-y-3">
-        <div><label className="label">Current password</label><input type="password" className="input" value={currentPassword} onChange={(e) => setCurrent(e.target.value)} /></div>
-        <div><label className="label">New password (min 8, letters + numbers)</label><input type="password" className="input" value={newPassword} onChange={(e) => setNext(e.target.value)} /></div>
-        <div><label className="label">Confirm new password</label><input type="password" className="input" value={confirm} onChange={(e) => setConfirm(e.target.value)} /></div>
+        <PasswordField label="Current password" value={currentPassword} onChange={(e) => setCurrent(e.target.value)} />
+        <PasswordField label="New password" value={newPassword} onChange={(e) => setNext(e.target.value)} hint="Min 8 characters, letters + numbers" />
+        <PasswordField label="Confirm new password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
         <p className="text-xs text-gray-400">Changing your password will sign you out of all other sessions.</p>
       </div>
     </Modal>
