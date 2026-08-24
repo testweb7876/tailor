@@ -1,0 +1,11 @@
+const express = require('express');
+const authenticate = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
+const upload = require('../middleware/upload');
+const ctrl = require('../controllers/settings.controller');
+const router = express.Router();
+router.use(authenticate);
+router.get('/', ctrl.get);
+router.put('/', authorize('SUPER_ADMIN'), ctrl.update);
+router.post('/logo', authorize('SUPER_ADMIN'), upload.single('image'), ctrl.uploadLogo);
+module.exports = router;

@@ -1,0 +1,35 @@
+# One-command local stack: MongoDB + API + web.
+# Copy server/.env.example -> server/.env first (set JWT secrets etc.); MONGO_URI is overridden below.
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      MONGO_URI: mongodb://mongo:27017/tailor_erp
+      CLIENT_URL: http://localhost:8080
+      PORT: 6000
+    depends_on:
+      - mongo
+    ports:
+      - "6000:6000"
+
+  client:
+    build: ./client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "8080:80"
+
+volumes:
+  mongo-data:

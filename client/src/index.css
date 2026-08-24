@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+body { @apply bg-paper text-ink font-sans antialiased; }
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50; }
+  .btn-primary { @apply btn bg-indigo text-white hover:bg-indigo-700; }
+  .btn-ghost { @apply btn border border-gray-200 bg-white text-ink hover:bg-gray-50; }
+  .card { @apply rounded-xl border border-gray-100 bg-white shadow-card; }
+  .input { @apply w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-indigo focus:ring-2 focus:ring-indigo/15; }
+  .label { @apply mb-1 block text-sm font-medium text-gray-700; }
+}
