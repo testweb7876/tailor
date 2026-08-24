@@ -1,5 +1,3 @@
-/* Measurement field keys matched to the shop's physical bill-book layout.
-   Labels are in English per the shop's request; keys stay stable for storage. */
 module.exports = {
   trouser: {
     tableKeys: ['length', 'waist', 'hip', 'thigh', 'calf', 'bottom'],

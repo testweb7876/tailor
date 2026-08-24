@@ -20,14 +20,13 @@ const userSchema = new mongoose.Schema(
       default: 'ADMIN',
       index: true,
     },
-    branch: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', default: null }, // null = all branches (Super Admin)
+    branch: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch', default: null }, 
     permissions: {
       type: [String],
       enum: ['customers', 'orders', 'measurements', 'fabrics', 'payments', 'invoices', 'reports', 'settings', 'activity', 'dashboard', 'broadcast'],
       default: [],
     },
     status: { type: String, enum: ['active', 'disabled'], default: 'active', select: false },
-    // Bumped on password change / reset / disable → invalidates all outstanding refresh tokens.
     tokenVersion: { type: Number, default: 0 },
     lastLogin: { type: Date },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

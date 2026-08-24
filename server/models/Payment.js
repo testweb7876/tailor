@@ -6,17 +6,14 @@ const STATUS = ['created', 'paid', 'failed', 'refunded'];
 
 const paymentSchema = new mongoose.Schema(
   {
-    paymentCode: { type: String, unique: true, index: true }, // PAY-2026-0001
+    paymentCode: { type: String, unique: true, index: true }, 
     order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true, index: true },
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true, index: true },
-
     amount: { type: Number, required: true, min: 0.01 },
     method: { type: String, enum: METHODS, required: true },
     status: { type: String, enum: STATUS, default: 'paid', index: true },
     isAdvance: { type: Boolean, default: false },
-
-    transactionId: { type: String, trim: true },     // UPI ref / gateway payment id
-
+    transactionId: { type: String, trim: true },     
     notes: { type: String, trim: true },
     paymentDate: { type: Date, default: Date.now, index: true },
     receivedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

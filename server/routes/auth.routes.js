@@ -8,7 +8,6 @@ const ctrl = require('../controllers/auth.controller');
 
 const router = express.Router();
 
-// Stricter limit on credential endpoints to slow brute-force attempts.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,

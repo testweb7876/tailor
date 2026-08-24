@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-/* A staff member (tailor, cutter, helper) who orders can be assigned to.
-   Kept separate from User — staff don't log in, they're just a reference label. */
 const staffSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },

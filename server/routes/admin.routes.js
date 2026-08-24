@@ -1,14 +1,11 @@
 const express = require('express');
-
 const authenticate = require('../middleware/auth');
 const authorize = require('../middleware/authorize');
 const validate = require('../middleware/validate');
 const v = require('../validators/admin.validators');
 const ctrl = require('../controllers/admin.controller');
-
 const router = express.Router();
 
-// Everything here is Super Admin only.
 router.use(authenticate, authorize('SUPER_ADMIN'));
 
 router.get('/', validate(v.listQuery), ctrl.list);

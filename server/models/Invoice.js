@@ -3,19 +3,19 @@ const Counter = require('./Counter');
 
 const invoiceSchema = new mongoose.Schema(
   {
-    invoiceNumber: { type: String, unique: true, index: true }, // INV-2026-0001
+    invoiceNumber: { type: String, unique: true, index: true },
     order: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: true, index: true },
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true, index: true },
 
     invoiceDate: { type: Date, default: Date.now },
     deliveryDate: { type: Date },
 
-    shopSnapshot: { type: mongoose.Schema.Types.Mixed },     // name, logo, address, gst...
+    shopSnapshot: { type: mongoose.Schema.Types.Mixed },     
     customerSnapshot: { type: mongoose.Schema.Types.Mixed },
     itemsSnapshot: { type: [mongoose.Schema.Types.Mixed], default: [] },
-    totals: { type: mongoose.Schema.Types.Mixed },           // subtotal, discount, tax, grand, paid, balance
+    totals: { type: mongoose.Schema.Types.Mixed },           
 
-    pdfUrl: { type: String },      // Cloudinary URL once generated
+    pdfUrl: { type: String },      
     emailSent: { type: Boolean, default: false },
     emailSentAt: { type: Date },
     whatsappSent: { type: Boolean, default: false },

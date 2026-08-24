@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 
-/* Singleton settings document. Secret gateway keys live ONLY in env vars, never here —
-   this stores flags and public-safe config the frontend is allowed to read. */
 const settingsSchema = new mongoose.Schema(
   {
-    key: { type: String, default: 'app', unique: true }, // enforce single doc
+    key: { type: String, default: 'app', unique: true }, 
     shop: {
       name: { type: String, default: 'My Tailor Shop' },
       logoUrl: { type: String, default: '' },
@@ -41,14 +39,12 @@ const settingsSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/* Always work with the one settings doc. */
 settingsSchema.statics.getSingleton = async function getSingleton() {
   let doc = await this.findOne({ key: 'app' });
   if (!doc) doc = await this.create({ key: 'app' });
   return doc;
 };
 
-/* Public-safe subset for the frontend (no secrets ever stored here anyway). */
 settingsSchema.methods.toPublic = function toPublic() {
   return {
     shop: this.shop,
@@ -60,7 +56,7 @@ settingsSchema.methods.toPublic = function toPublic() {
       footer: this.invoice.footer,
     },
     order: this.order,
-    payment: this.payment, // booleans only
+    payment: this.payment,
   };
 };
 
