@@ -42,7 +42,9 @@ exports.sales = asyncHandler(async (req, res) => {
   const orders = await Order.find({ orderDate: { $gte: start, $lte: end }, status: { $ne: 'cancelled' } })
     .populate('customer', 'fullName mobile').sort('orderDate').lean();
   const rows = orders.map((o) => ({
-    orderNumber: o.orderNumber, date: o.orderDate, customer: o.customer?.fullName, phone: o.customer?.mobile,
+    orderNumber: o.orderNumber,
+    date: new Date(o.orderDate).toLocaleDateString('en-IN'),
+    customer: o.customer?.fullName, phone: o.customer?.mobile,
     subtotal: o.subtotal, discount: o.discount, tax: o.tax, grandTotal: o.grandTotal,
     paid: o.paidAmount, pending: o.pendingAmount, status: o.status,
   }));
@@ -68,7 +70,9 @@ exports.payments = asyncHandler(async (req, res) => {
   const payments = await Payment.find({ paymentDate: { $gte: start, $lte: end } })
     .populate('customer', 'fullName').populate('order', 'orderNumber').sort('paymentDate').lean();
   const rows = payments.map((p) => ({
-    paymentCode: p.paymentCode, date: p.paymentDate, customer: p.customer?.fullName,
+    paymentCode: p.paymentCode,
+    date: new Date(p.paymentDate).toLocaleDateString('en-IN'), 
+    customer: p.customer?.fullName,
     order: p.order?.orderNumber, amount: p.amount, method: p.method, status: p.status, txn: p.transactionId || '',
   }));
   return maybeCsv(res, req, rows, 'payment-report');
@@ -80,7 +84,9 @@ exports.pending = asyncHandler(async (req, res) => {
     .populate('customer', 'fullName mobile').sort('-pendingAmount').lean();
   const rows = orders.map((o) => ({
     orderNumber: o.orderNumber, customer: o.customer?.fullName, phone: o.customer?.mobile,
-    total: o.grandTotal, paid: o.paidAmount, pending: o.pendingAmount, deliveryDate: o.deliveryDate, status: o.status,
+    total: o.grandTotal, paid: o.paidAmount, pending: o.pendingAmount,
+    deliveryDate: o.deliveryDate ? new Date(o.deliveryDate).toLocaleDateString('en-IN') : '',  
+    status: o.status,
   }));
   return maybeCsv(res, req, rows, 'pending-report');
 });
@@ -92,7 +98,9 @@ exports.orders = asyncHandler(async (req, res) => {
   if (req.query.status) filter.status = req.query.status;
   const orders = await Order.find(filter).populate('customer', 'fullName').sort('orderDate').lean();
   const rows = orders.map((o) => ({
-    orderNumber: o.orderNumber, date: o.orderDate, customer: o.customer?.fullName,
+    orderNumber: o.orderNumber,
+    date: new Date(o.orderDate).toLocaleDateString('en-IN'),  
+    customer: o.customer?.fullName,
     items: o.items.length, priority: o.priority, status: o.status, grandTotal: o.grandTotal,
   }));
   return maybeCsv(res, req, rows, 'order-report');
@@ -114,7 +122,8 @@ exports.fabrics = asyncHandler(async (req, res) => {
   const rows = fabrics.map((f) => ({
     name: f.name, code: f.code || '', brand: f.brand || '', color: f.color || '', material: f.material || '',
     meters: f.meters, rate: f.rate, total: f.total, source: f.source,
-    customer: f.customer?.fullName || '', order: f.order?.orderNumber || '', date: f.createdAt,
+    customer: f.customer?.fullName || '', order: f.order?.orderNumber || '',
+    date: new Date(f.createdAt).toLocaleDateString('en-IN'),  
   }));
   return maybeCsv(res, req, rows, 'fabric-report');
 });
