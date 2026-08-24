@@ -42,6 +42,9 @@ const clearAuthCookies = (res) => {
   res.clearCookie('refreshToken', base);
 };
 
+const signDownloadToken = (userId) =>
+  jwt.sign({ sub: userId.toString() }, env.jwt.accessSecret, { expiresIn: '60s' });
+
 module.exports = {
   signAccessToken,
   signRefreshToken,
@@ -51,4 +54,5 @@ module.exports = {
   cookieBase,
   setAuthCookies,
   clearAuthCookies,
+  signDownloadToken,
 };

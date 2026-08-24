@@ -30,9 +30,12 @@ export default function Reports() {
   };
   useEffect(() => { load(); }, [type, preset]); // eslint-disable-line
 
-  const exportAs = (format) => {
-    const q = new URLSearchParams({ format, ...params() }).toString();
-    window.open(`${api.defaults.baseURL}/reports/${type}?${q}`, '_blank');
+  const exportAs = async (format) => {
+    try {
+      const { data } = await api.get('/auth/download-token');
+      const q = new URLSearchParams({ format, token: data.token, ...params() }).toString();
+      window.open(`${api.defaults.baseURL}/reports/${type}?${q}`, '_blank');
+    } catch (e) { toast.error(msg(e, 'Could not export')); }
   };
 
   const cols = rows[0] ? Object.keys(rows[0]) : [];

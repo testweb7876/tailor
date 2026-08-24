@@ -2,12 +2,16 @@ const { verifyAccessToken } = require('../utils/tokens');
 const ApiError = require('../utils/ApiError');
 const User = require('../models/User');
 
-
 module.exports = async function authenticate(req, res, next) {
   try {
     let token = req.cookies?.accessToken;
     if (!token && req.headers.authorization?.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
+    }
+    // Fallback: short-lived download token via query string — used only for
+    // window.open() print/export links where cookies may not attach reliably.
+    if (!token && req.query?.token) {
+      token = req.query.token;
     }
     if (!token) throw ApiError.unauthorized('Authentication required');
 

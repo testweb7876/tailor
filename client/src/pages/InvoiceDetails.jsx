@@ -16,7 +16,13 @@ export default function InvoiceDetails() {
     api.get(`/invoices/${id}`).then(({ data }) => setInv(data.invoice)).catch((e) => toast.error(msg(e, 'Failed to load invoice')));
   }, [id]); // eslint-disable-line
 
-  const openPdf = () => window.open(`${api.defaults.baseURL}/invoices/${id}/pdf`, '_blank');
+  const openPdf = async () => {
+    try {
+      const { data } = await api.get('/auth/download-token');
+      window.open(`${api.defaults.baseURL}/invoices/${id}/pdf?token=${data.token}`, '_blank');
+    } catch (e) { toast.error(msg(e, 'Could not open PDF')); }
+  };
+
   const sendEmail = async () => {
     setSending(true);
     try { const { data } = await api.post(`/invoices/${id}/email`); toast[data.emailed ? 'success' : 'info'](data.emailed ? `Emailed to ${data.to}` : `Email not configured (${data.detail})`); }

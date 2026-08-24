@@ -21,5 +21,6 @@ router.post('/refresh', ctrl.refresh);
 router.post('/logout', authenticate, ctrl.logout);
 router.get('/me', authenticate, ctrl.me);
 router.post('/change-password', authenticate, validate(authValidators.changePassword), ctrl.changePassword);
+router.get('/download-token', authenticate, ctrl.downloadToken);
 
 module.exports = router;

@@ -27,6 +27,13 @@ export default function OrderDetails() {
   };
   useEffect(() => { load(); }, [id]); // eslint-disable-line
 
+  const printSlip = async () => {
+    try {
+      const { data } = await api.get('/auth/download-token');
+      window.open(`${api.defaults.baseURL}/orders/${id}/slip?token=${data.token}`, '_blank');
+    } catch (e) { toast.error(msg(e, 'Could not open slip')); }
+  };
+
   const changeStatus = async (status) => {
     try { const { data } = await api.patch(`/orders/${id}/status`, { status }); setOrder((o) => ({ ...o, status: data.order.status })); toast.success(`Status: ${status}`); }
     catch (e) { toast.error(msg(e, 'Could not update status')); }
@@ -58,7 +65,7 @@ export default function OrderDetails() {
           </div>
           <div className="flex flex-wrap gap-2">
             {order.pendingAmount > 0 && <button className="btn-primary" onClick={() => setPayOpen(true)}><CreditCard size={15} /> Receive Payment</button>}
-            <button className="btn-ghost" onClick={() => window.open(`${api.defaults.baseURL}/orders/${id}/slip`, '_blank')}><FileText size={15} /> Print Slip</button>
+            <button className="btn-ghost" onClick={printSlip}><FileText size={15} /> Print Slip</button>
             <button className="btn-ghost" onClick={generateInvoice}><FileText size={15} /> Generate Invoice</button>
           </div>
         </div>

@@ -1,5 +1,5 @@
 const asyncHandler = require('../utils/asyncHandler');
-const { setAuthCookies, clearAuthCookies } = require('../utils/tokens');
+const { setAuthCookies, clearAuthCookies, signDownloadToken } = require('../utils/tokens');
 const authService = require('../services/authService');
 const activity = require('../services/activityService');
 
@@ -71,4 +71,10 @@ exports.changePassword = asyncHandler(async (req, res) => {
     resourceId: user._id,
   });
   res.json({ success: true, message: 'Password changed. Other sessions have been logged out.' });
+});
+
+// GET /api/auth/download-token — short-lived (60s) token for window.open() download links
+exports.downloadToken = asyncHandler(async (req, res) => {
+  const token = signDownloadToken(req.user._id);
+  res.json({ success: true, token });
 });
