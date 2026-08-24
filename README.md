@@ -1,190 +1,220 @@
-# Aone Tailors & Son's — Shop Management System (TailorHub)
+# Tailor Management Software
 
-A single-shop tailoring business management system built for **Aone Tailors & Son's** (Peersthan, Kalka-Baddi Road, Nalagarh, H.P.) — handles customers, measurements, fabrics, orders, manual payments, invoices, WhatsApp automation, and reporting.
+A complete shop management system built for **Aone Tailors & Son's** (Peersthan, Kalka–Baddi Road, Nalagarh, H.P.) — manages customers, measurements, fabrics, orders, manual payments, invoices, WhatsApp automation, staff, branches, and reporting, all in one place.
 
-**MERN stack** (MongoDB, Express, React, Node) · Backend-authoritative money engine · JWT auth (httpOnly cookies) · Role + module-level permission system.
+**Category:** Tailor / Garment Business Management Software (CRM + ERP + Billing, combined for the tailoring industry)
 
-> **Status.** Backend and frontend are feature-complete for the client's requirements. This is a **single-shop ERP**, not multi-tenant SaaS. No payment gateway is integrated — all payments (cash, UPI, card, bank transfer) are recorded manually by the shop admin, with the transaction/reference ID typed in by hand.
+**Stack:** MERN (MongoDB, Express, React, Node.js) · JWT authentication (httpOnly cookies) · Backend-authoritative money engine · Role + module-level permission system · PWA-installable
+
+> **Status.** Feature-complete and deployed live. This is a single-shop system (with optional multi-branch support built in but inactive until a second location is added) — not a multi-tenant SaaS product.
 
 ---
 
-## Stack
+## What this software does
 
-- **Backend:** Node + Express, Mongoose, JWT (httpOnly cookies), bcrypt, Zod validation, Helmet, CORS, rate-limiting, mongo-sanitize, Multer + Cloudinary, PDFKit, Nodemailer, node-cron, json2csv, xlsx, dayjs.
-- **Frontend:** React 18 + Vite, React Router, Axios, React Hook Form, Recharts, Tailwind CSS, lucide-react.
+A tailor shop traditionally runs on a paper bill book — order slips, measurement charts, advance/balance notes, all handwritten. This software digitizes that entire workflow while keeping the same familiar structure (bill numbers, measurement tables, particulars/charges layout) so the transition from paper to digital is seamless for shop staff.
+
+### Core workflow it replaces
+1. Customer walks in → picks fabric → order slip written by hand → measurements taken → advance noted → balance tracked on paper → reminders given verbally or forgotten.
+
+### What it becomes
+1. Customer walks in → fabric photographed or coded in the app → order created with auto-calculated totals → measurements saved digitally (with full version history) → a printable slip matching the shop's original bill-book design is generated → automatic WhatsApp reminders go out before delivery → every rupee is tracked and reconciled automatically.
+
+---
+
+## Features
+
+### Customers & Measurements
+- Customer profiles with name, mobile, address, and full history (orders, payments, invoices, fabrics, measurements) in one view
+- Fast phone/name search for the front counter
+- Measurements are **versioned** — editing creates a new version, the old one is preserved as history (nothing is ever overwritten or lost)
+- Measurement fields match the shop's physical bill-book layout exactly (Trousers: Length, Waist, Hip, Thigh, Calf, Bottom, Design No, Fitting, Pocket, Back Pocket, Belt, Plate; Shirt/Coat: Length, Tira, Chest, Waist, Collar, Sleeve, Natural Waist, Design No, Fitting, Collar, Cuff, Pocket, Cut, Plate)
+
+### Fabrics
+- Every garment in an order requires **either** an HD fabric photo (taken via phone camera or picked from gallery) **or** a fabric code — enforced on both the client and the server, so orders can never go through with missing fabric identification
+- Fabric history tracked per customer and per order, browsable in a dedicated Fabrics page
+
+### Orders
+- Multi-item orders (multiple garments per order) with auto-calculated fabric total, stitching total, discount, tax, and grand total — **all computed server-side**, client-submitted totals are never trusted
+- Physical bill-book number field (`manualBillNo`, e.g. "401") so the digital system can mirror the shop's existing paper numbering
+- Order status flow: New → Confirmed → Cutting → Stitching → Trial → Alteration → Ready → Delivered (or Cancelled)
+- Staff/tailor assignment — orders can be assigned to a specific tailor or cutter so the shop can track who is working on what
+- **Printable order slip (PDF)** — recreates the shop's original bill-book intake form: header with shop branding, bill number, customer details, particulars, fabric photo thumbnails, stitching charges/advance/balance/signature line, and the two measurement tables — generated fresh from live order data
+
+### Payments
+- Manual payment recording only — Cash, UPI, Card, or Bank Transfer, with an optional free-text transaction/reference ID (the shop's customers already share their own UPI/bank transaction IDs, so no payment gateway integration is needed or wanted)
+- Advance payment at order creation, live pending-balance tracking, refunds
+- Every rupee is a real `Payment` record — nothing is a loose number on the order; balances are always derived by summing actual payment documents
+
+### Invoices
+- Immutable snapshot PDF generated at/after delivery — a formal itemised bill with shop details, customer details, line items, and totals frozen at generation time (so later edits to the order or shop settings never silently change an already-issued invoice)
+- Emailable (HTML summary + PDF attachment via SMTP) and WhatsApp-shareable
+
+### WhatsApp automation
+- **Automatic delivery reminders** — a daily scheduled job checks orders due the next day and sends a WhatsApp reminder automatically via the Meta WhatsApp Cloud API
+- **Broadcast** — send one offer or announcement message to every active customer in a single click
+- Without the Cloud API configured, both features fall back gracefully to manual click-to-chat (`wa.me`) links
+
+### Admins, Permissions & Branches
+- Super Admin creates Admin accounts and grants **module-level access** (Customers, Orders, Measurements, Fabrics, Payments, Invoices, Reports, Settings, Activity, Dashboard, Broadcast) — an Admin without a permission simply cannot see or use that section, enforced on both the API and the UI
+- **Branch support** built in for future expansion — when the shop opens a second location, a Super Admin can create a branch and assign Admins to it; that Admin then only sees their branch's customers and orders. Invisible and inactive until a branch is actually created, so today's single-shop operation is unaffected
+- Full activity log — every create, update, delete, login, and status change is recorded with who, when, and from where
+
+### Reports & Dashboard
+- Dashboard with today's orders/revenue/collections, pending orders, upcoming deliveries, outstanding payments, and monthly charts (revenue, orders, payment methods, order status breakdown)
+- Seven report types — Sales, Revenue, Payments, Pending, Orders, Customers, Fabrics — each exportable as CSV, Excel, or PDF
+
+### Platform
+- Installable as a **Progressive Web App** (add to home screen, app-like standalone window) — data is always fetched live from the server, so figures are never stale
+- Responsive design, works on desktop and mobile (the shop's day-to-day usage is expected to be mostly on a phone)
+
+---
+
+## Tech stack
+
+**Backend**
+- Node.js + Express
+- MongoDB + Mongoose
+- JWT authentication with httpOnly cookies (access + refresh token pair, session revocation via `tokenVersion`)
+- Zod for request validation
+- Helmet, CORS (origin-locked), rate-limiting, mongo-sanitize for security
+- Multer + Cloudinary for image uploads (fabric photos, shop logo)
+- PDFKit for PDF generation (invoices, order slips, tabular reports)
+- Nodemailer for email (SMTP — Brevo/Resend/any provider)
+- node-cron for the scheduled delivery-reminder job
+- json2csv and xlsx for report exports
+
+**Frontend**
+- React 18 + Vite
+- React Router
+- Axios (with automatic access-token refresh on 401)
+- React Hook Form
+- Recharts (dashboard charts)
+- Tailwind CSS
+- lucide-react (icons)
+- vite-plugin-pwa (installable app support)
+
+**Infrastructure**
+- MongoDB Atlas (database)
+- Render (backend hosting)
+- Vercel (frontend hosting)
+- Cloudinary (image storage)
+
+---
 
 ## Repository layout
 
+```
 tailor-erp/
-├── server/ Express API
-│ ├── config/ env, db, cloudinary, garmentFields (measurement field keys/labels)
-│ ├── models/ User, Customer, Measurement, Order, Payment, Invoice, Settings, ActivityLog, Fabric, Counter
-│ ├── services/ finance, auth, activity, cloudinary, pdf, email, whatsapp, invoice, reminderScheduler
-│ ├── controllers/ auth, admin, customer, measurement, fabric, order, payment, invoice, dashboard, pending, report, search, settings, activity, broadcast
-│ ├── validators/ Zod schemas
-│ ├── routes/ one router per resource, mounted in routes/index.js under /api
-│ ├── middleware/ auth, authorize, requirePermission, validate, upload, errorHandler, notFound
-│ ├── utils/ tokens, money, paginate, dateRange, logger, ApiError, asyncHandler, seed, seedDemo
-│ └── app.js, server.js
-├── client/ React app
-│ └── src/ services/api, context/AuthContext, components, layouts, pages, hooks
+├── server/
+│   ├── config/         env, db, cloudinary, garmentFields (measurement field definitions)
+│   ├── models/         User, Customer, Measurement, Order, Payment, Invoice, Settings,
+│   │                   ActivityLog, Fabric, Counter, Staff, Branch
+│   ├── services/       finance, auth, activity, cloudinary, pdf, email, whatsapp,
+│   │                   invoice, reminderScheduler
+│   ├── controllers/    auth, admin, customer, measurement, fabric, order, payment,
+│   │                   invoice, dashboard, pending, report, search, settings,
+│   │                   activity, broadcast, staff, branch
+│   ├── validators/     Zod schemas for every write endpoint
+│   ├── routes/         one router per resource, mounted under /api
+│   ├── middleware/     auth, authorize, requirePermission, branchScope, validate,
+│   │                   upload, errorHandler, notFound
+│   ├── utils/          tokens, money, paginate, dateRange, logger, ApiError,
+│   │                   asyncHandler, seed, seedDemo
+│   └── app.js, server.js
+├── client/
+│   └── src/            services/api, context/AuthContext, components, layouts,
+│                        pages, hooks
 ├── README.md
-
+```
 
 ---
 
-## Quick start
+## Quick start (local development)
 
-### 1) Backend
-
+### Backend
 ```bash
 cd server
-cp .env.example .env          # set MONGO_URI + two strong JWT secrets (minimum)
+cp .env.example .env          # fill in MONGO_URI + two strong JWT secrets (minimum)
 npm install
 npm run seed                  # creates the first Super Admin + Settings (idempotent)
-npm run seed:demo             # OPTIONAL: 20 customers, ~30 orders, payments, invoices, fabrics
-npm run dev                   # http://localhost:5000  (health: GET /api/health)
+npm run seed:demo             # optional: sample customers/orders/payments for testing
+npm run dev                   # http://localhost:5000 (or your chosen PORT)
 ```
 
-Default Super Admin (from `.env`): **admin@tailorshop.com / Admin@12345** — **change this immediately** after first login.
-
-### 2) Frontend
-
+### Frontend
 ```bash
 cd client
 npm install
-npm run dev                   # http://localhost:5173  (proxies /api -> :5000)
+npm run dev                   # http://localhost:5173 (proxies /api to the backend)
 ```
 
-**MongoDB:** local (`mongodb://127.0.0.1:27017/tailor_erp`) or Atlas — set `MONGO_URI`.
-
-### Or run the whole stack with Docker
-
-```bash
-cp server/.env.example server/.env      # set JWT secrets (MONGO_URI is set by compose)
-docker compose up --build               # Mongo + API (:5000) + web (:8080)
-docker compose exec server npm run seed
-docker compose exec server npm run seed:demo   # optional demo data
-```
-
-For production without Docker, PM2 is provided: `cd server && pm2 start ecosystem.config.js --env production` (clustered).
+Default Super Admin (set in `.env`): change the seeded password immediately after first login.
 
 ---
 
-## Core features (client requirements)
+## Production deployment (live setup used)
 
-- **Order intake** — pick customer → select/enter fabric → auto-calculated bill.
-- **Fabric identification (mandatory)** — every garment item requires **either** an HD fabric photo (camera or gallery upload) **or** a fabric code. Enforced both client-side (instant feedback) and server-side (Zod `.refine()` — can't be bypassed).
-- **Measurements** — versioned: editing creates a new version, old ones are kept as history (never overwritten). Field layout matches the shop's physical bill book (trouser + shirt/coat tables — see `config/garmentFields.js`).
-- **Customer record** — name, mobile, full order/payment/measurement/fabric history, running totals (total spent, total paid, outstanding balance).
-- **Manual payments only** — Cash / UPI / Card / Bank transfer. For UPI/Card/Bank the admin types the transaction/reference ID by hand (no payment gateway; the client's customers already share their own payment IDs). Advance and pending balance tracked per order.
-- **Physical bill-book number** — `manualBillNo` field on each order (e.g. "401") lets the admin keep the digital system in sync with the shop's existing paper bill book.
-- **Order slip PDF** — printable slip matching the shop's physical intake form layout (header, particulars, charges, trouser/shirt measurement tables) — `GET /api/orders/:id/slip`.
-- **Invoices** — immutable snapshot PDF generated at delivery time, emailable, WhatsApp-shareable.
-- **Automatic delivery reminders** — a daily cron job (9:00 AM) finds orders due tomorrow and sends a WhatsApp reminder automatically — **requires WhatsApp Cloud API** (see below). Without it, reminders must be sent manually via a generated click-to-chat link.
-- **Broadcast** — send one offer/message to every active customer in one click — same Cloud API requirement as above; falls back to per-customer manual links if unconfigured.
-- **Super Admin + module permissions** — the Super Admin creates Admin accounts and grants access per module (customers, orders, measurements, fabrics, payments, invoices, reports, settings, activity, dashboard, broadcast). An Admin without a permission gets a 403 on that module, both in the API and the sidebar.
-- **Reports** — sales, revenue, payments, pending, orders, customers, fabrics — exportable as CSV, Excel, or PDF.
-- **Activity log** — full audit trail (who did what, when, from which IP) — Super Admin only.
+1. **Database** — MongoDB Atlas, connection string in `MONGO_URI`
+2. **Backend** — deployed on Render as a Docker web service (`server/Dockerfile`), with all environment variables set in the Render dashboard (never committed to the repo)
+3. **Frontend** — deployed on Vercel, built from `client/`, with `VITE_API_BASE_URL` pointing to the Render backend's `/api` path
+4. **CORS** — the backend's `CLIENT_URL` environment variable is set to the exact Vercel production URL (no trailing slash) so cross-origin cookies and requests are accepted
+5. **Cookies** — `COOKIE_SECURE=true` and `NODE_ENV=production` in the backend, so authentication cookies use `Secure; SameSite=None`, required for the split-origin (Vercel + Render) setup
+6. **Print/export links** (order slip PDF, invoice PDF, report exports) use a short-lived (60-second) download token passed as a query parameter, since `window.open()` cross-origin tabs don't reliably carry httpOnly cookies — this keeps downloads working without weakening the main authentication cookie's security
 
 ---
 
 ## Core design decisions
 
-- **Backend owns all money.** Order totals (fabric, stitching, subtotal, discount, tax, grand total, paid, pending) are recomputed server-side on every save; client-supplied totals are ignored. `Grand Total = (Subtotal − Discount) + Tax`; `Pending = Grand Total − (paid − refunded)`.
-- **No payment gateway.** All payments are manual entries with an optional free-text transaction ID — deliberately simple per the shop owner's workflow (customers already send their own UPI/bank transaction IDs over WhatsApp).
-- **Immutable invoices.** An invoice stores a snapshot of shop + customer + items + totals, so old invoices don't change when records are later edited. Paid/balance are refreshed live only for display/PDF.
-- **Versioned measurements.** "Editing" a measurement creates a new version and deactivates the old one — history is never destroyed.
-- **Human-readable IDs** via an atomic `Counter` collection: `CUST-0001`, `ORD-2026-0001`, `PAY-2026-0001`, `INV-2026-0001` — plus an optional shop-defined `manualBillNo` per order for continuity with the paper bill book.
-- **Session revocation** via `tokenVersion` — password change / reset / disable invalidates outstanding refresh tokens immediately; auth middleware re-checks account status on every request.
-- **Module-level permissions**, not just two fixed roles — `requirePermission(moduleName)` middleware gates every non-Super-Admin route; Super Admin always has full access.
-- **Graceful integrations.** Cloudinary, SMTP, and WhatsApp Cloud API are wired behind env vars and no-op cleanly when unset. `GET /api/settings` (Super Admin) reports each integration's live status.
+- **The backend owns all money.** Every financial figure (fabric total, stitching total, subtotal, discount, tax, grand total, paid, pending) is recalculated server-side on every save. Client-submitted totals are never trusted, even from the admin's own browser.
+- **No payment gateway, by design.** All payments are manual entries with an optional free-text transaction ID. The shop's customers already send their own UPI/bank transaction references over WhatsApp, so a gateway integration would add cost and complexity without solving a real problem here.
+- **Invoices are immutable snapshots.** Once generated, an invoice's shop details, customer details, line items, and totals are frozen — editing the underlying order or shop settings afterward never silently changes an invoice that's already been given to a customer.
+- **Measurements are versioned, never overwritten.** "Editing" a measurement creates a new version and deactivates the old one, so a tailor can always look back at exactly what was recorded for a previous order.
+- **Human-readable IDs** generated through an atomic counter (`CUST-0001`, `ORD-2026-0001`, `PAY-2026-0001`, `INV-2026-0001`), plus an optional shop-defined bill number per order for continuity with the physical bill book.
+- **Session revocation** via a `tokenVersion` field — changing or resetting a password, or disabling an account, immediately invalidates all of that user's existing sessions.
+- **Module-level permissions**, not just two fixed roles. A `requirePermission` middleware gates every non-Super-Admin route; the Super Admin always has full, unrestricted access.
+- **Graceful degradation for optional integrations.** Cloudinary, SMTP, and the WhatsApp Cloud API are all wired behind environment variables and simply no-op (with a clear fallback, like manual click-to-chat links) when not configured — the app never crashes because an integration is missing.
 
 ---
 
-## API surface (all under `/api`, cookie-authenticated)
+## Security measures in place
 
-Auth `login·refresh·logout·me·change-password` · Admins (SUPER) `CRUD·reset-password·activity·permissions` · Customers `CRUD·search·profile tabs` · Measurements `versioned·history·duplicate·garments` · Fabrics `CRUD·image upload` · Orders `CRUD·status·slip PDF·receive-payment` · Payments `list·refund` · Invoices `generate·pdf·email·whatsapp` · Dashboard `summary·charts·recent` · Pending-payments `list·reminder` · Broadcast `send to all customers` · Reports `sales·revenue·payments·pending·orders·customers·fabrics (CSV·Excel·PDF)` · Search `global` · Settings `get·update·logo` · Activity `list (SUPER)`.
-
----
-
-## Integrations setup
-
-All optional; the app runs without them, with graceful fallbacks.
-
-- **Cloudinary** (fabric photos, shop logo): set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`. Uploads use in-memory Multer (5 MB, images only) streamed to Cloudinary. Fabric photos can be taken directly with the phone camera or picked from the gallery.
-- **Email** (Brevo / Resend / any SMTP): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`. Invoices email an HTML summary + PDF attachment; `emailSent`/`emailSentAt` recorded.
-- **WhatsApp Cloud API** (recommended for full automation): set `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_ID` (from Meta Business/Developer account). Enables:
-  - Automatic delivery reminders (daily cron, 1 day before delivery)
-  - One-click broadcast to all customers
-  - Direct invoice/reminder sending (no manual click needed)
-
-  **Without this configured**, the app falls back to `wa.me` click-to-chat links that the admin opens and sends manually, one customer at a time. This is a Meta/WhatsApp platform requirement, not a limitation of the app — Meta Business verification is needed to send messages programmatically at scale.
-
-### Automatic delivery reminders
-
-`services/reminderScheduler.js` runs a daily cron job (9:00 AM server time) via `node-cron`. It finds orders with a delivery date tomorrow, not yet delivered/cancelled, and not already reminded (`deliveryReminderSent` flag), and sends a WhatsApp message via the Cloud API. If the delivery date on an order is changed, the reminder flag resets automatically so a new reminder will go out for the new date.
+- Helmet security headers
+- CORS locked to a single, explicit origin (never a wildcard)
+- Rate limiting (global API limit, plus a stricter limit on the login endpoint)
+- mongo-sanitize (blocks NoSQL operator injection)
+- Zod validation on every write endpoint (type coercion, length/format checks, enum whitelisting)
+- httpOnly, Secure, SameSite cookies for authentication tokens (never exposed to client-side JavaScript)
+- bcrypt password hashing
+- File upload limits (5 MB, images only) on all fabric/logo uploads
+- Central error handler that hides stack traces in production
 
 ---
 
-## Order slip vs. Invoice — two different documents
+## Roadmap / what's built
 
-- **Order slip** (`GET /api/orders/:id/slip`) — generated at order intake, matches the shop's existing paper bill book layout (bill no., dates, name, mobile, particulars, stitching charges, advance, balance, signature line, trouser + shirt/coat measurement tables). Meant to be printed and handed to the customer immediately, same as the physical carbon-copy book.
-- **Invoice** (`GET /api/invoices/:id/pdf`) — generated at/after delivery, a formal itemised bill with GST-style line items and totals, immutable snapshot, emailable/WhatsApp-shareable.
+| Area | Status |
+|---|---|
+| Customers, Measurements, Fabrics | ✅ |
+| Orders + backend financial engine | ✅ |
+| Manual payments (Cash/UPI/Card/Bank Transfer) + refunds | ✅ |
+| Invoices (immutable snapshot, PDF, email, WhatsApp) | ✅ |
+| Printable order slip matching the physical bill book | ✅ |
+| Fabric photo/code mandatory validation | ✅ |
+| Automatic WhatsApp delivery reminders | ✅ |
+| Bulk broadcast messaging | ✅ |
+| Staff/tailor assignment | ✅ |
+| Module-level Admin permissions | ✅ |
+| Multi-branch support (foundation, inactive until used) | ✅ |
+| Dashboard, Reports (CSV/Excel/PDF), Activity log | ✅ |
+| Progressive Web App (installable) | ✅ |
+| Production deployment (Render + Vercel + Atlas) | ✅ |
 
----
-
-## Security checklist (set before going live)
-
-- [ ] Generate strong, unique `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
-- [ ] Rotate the MongoDB Atlas database user password before production use.
-- [ ] `COOKIE_SECURE=true` and `NODE_ENV=production` in the deployed `.env`.
-- [ ] Serve both frontend and backend over HTTPS (cookies use `SameSite=None; Secure` in production).
-- [ ] Set `CLIENT_URL` to the exact production frontend origin — never a wildcard.
-- [ ] Change the default Super Admin password immediately after first login.
-- [ ] Set up regular MongoDB backups (Atlas paid tier, or a scheduled `mongodump`).
-- [ ] Run `npm audit` periodically and patch dependencies.
-- [ ] Grant Admin accounts only the module permissions they actually need.
-
-Helmet, CORS (credentialed, origin-locked), rate-limiting (global + stricter on login), mongo-sanitize, Zod input validation, httpOnly cookies, and file-upload size/type limits are already implemented in the codebase — they just need the environment variables above set correctly.
-
----
-
-## Testing done
-
-- **Backend:** every file passes `node --check`; the full require-graph loads; behavioural checks pass for the order money engine (fabric + stitching + discount-clamp + tax + status), payment→pending recompute, WhatsApp phone-normalise + link building, email HTML + unconfigured detection, PDF generation (invoice, order slip, generic report — valid `%PDF` buffers), CSV/Excel export, date-range presets, JWT round-trip with tokenVersion, httpOnly cookie flags + maxAge, Zod validators, validate middleware.
-- **Frontend:** `npm run build` succeeds; route-level code splitting keeps the initial bundle small.
-
-Run the full end-to-end flow locally against a real MongoDB: `npm run seed` then `npm run seed:demo`, then click through the UI.
+### Not in current scope
+Multi-tenant SaaS billing, multi-currency, barcode/QR order tickets, SMS gateway, offline-first data sync.
 
 ---
 
-## Production deployment
+## Support
 
-1. **MongoDB Atlas** (or managed Mongo) — set `MONGO_URI`, enable automatic backups.
-2. **Backend** on a Node host (Render/Railway/VPS/PM2): set all `.env` values per the security checklist above. `npm run seed` once.
-3. **Frontend** (`cd client && npm run build`) — serve `client/dist` on any static host/CDN, pointed at the API origin.
-4. Configure Cloudinary + SMTP + WhatsApp Cloud API credentials against production values.
-5. Verify HTTPS is active on both frontend and backend before real customer data is entered.
-
----
-
-## Roadmap
-
-| Phase | Scope | Status |
-|------|-------|--------|
-| 1–5 | Backend foundation, auth, customers, measurements, fabrics, orders, manual payments | ✅ |
-| 6 | Invoices (snapshot + PDF) + Email + WhatsApp | ✅ |
-| 7 | Dashboard + Pending payments + Reports + Search | ✅ |
-| 8 | Settings + Activity logs + demo seed | ✅ |
-| 9 | Full frontend: all pages wired to the API | ✅ |
-| 10 | Payment gateway (Razorpay/Stripe) removed — manual-only per client request | ✅ |
-| 11 | Fabric photo/code mandatory validation | ✅ |
-| 12 | Physical bill-book number (`manualBillNo`) + order slip PDF | ✅ |
-| 13 | Automatic delivery reminders (WhatsApp Cloud API + cron) | ✅ |
-| 14 | Bulk broadcast to all customers | ✅ |
-| 15 | Module-level Admin permissions | ✅ |
-
-### Not in scope (client did not request)
-
-Multi-tenant/SaaS support, multi-currency, barcode/QR order tickets, SMS gateway, offline PWA mode.
+For issues, feature requests, or deployment questions, contact the development team.
