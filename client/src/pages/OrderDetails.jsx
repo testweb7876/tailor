@@ -58,7 +58,7 @@ export default function OrderDetails() {
           </div>
           <div className="flex flex-wrap gap-2">
             {order.pendingAmount > 0 && <button className="btn-primary" onClick={() => setPayOpen(true)}><CreditCard size={15} /> Receive Payment</button>}
-            <button className="btn-ghost" onClick={() => window.open(`/api/orders/${id}/slip`, '_blank')}><FileText size={15} /> Print Slip</button>
+            <button className="btn-ghost" onClick={() => window.open(`${api.defaults.baseURL}/orders/${id}/slip`, '_blank')}><FileText size={15} /> Print Slip</button>
             <button className="btn-ghost" onClick={generateInvoice}><FileText size={15} /> Generate Invoice</button>
           </div>
         </div>
