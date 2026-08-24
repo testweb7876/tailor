@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: '/api', withCredentials: true });
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  withCredentials: true,
+});
 
 let refreshing = null;
 api.interceptors.response.use(
