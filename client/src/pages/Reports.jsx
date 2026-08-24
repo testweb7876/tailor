@@ -48,9 +48,9 @@ export default function Reports() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold">Reports</h1>
         <div className="flex gap-2">
-          <button className="btn-ghost" onClick={() => exportAs('csv')} disabled={!rows.length}><Download size={15} /> CSV</button>
-          <button className="btn-ghost" onClick={() => exportAs('xlsx')} disabled={!rows.length}><Sheet size={15} /> Excel</button>
-          <button className="btn-ghost" onClick={() => exportAs('pdf')} disabled={!rows.length}><FileText size={15} /> PDF</button>
+          {/* <button className="btn-ghost" onClick={() => exportAs('csv')} disabled={!rows.length}><Download size={15} /> CSV</button> */}
+          {/* <button className="btn-ghost" onClick={() => exportAs('xlsx')} disabled={!rows.length}><Sheet size={15} /> Excel</button> */}
+          {/* <button className="btn-ghost" onClick={() => exportAs('pdf')} disabled={!rows.length}><FileText size={15} /> PDF</button> */}
         </div>
       </div>
 
